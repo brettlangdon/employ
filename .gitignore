@@ -1,0 +1,9 @@
+.coverage
+.cache
+.ropeproject
+*.py[co]
+*.log
+build
+dist
+docs/_*
+*.egg-info
