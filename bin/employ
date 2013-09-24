@@ -3,23 +3,21 @@
 Employ instance to do your bidding
 
 Usage:
+  employ --help
+  employ --version
   employ help (commands | command <command> | regions)
-  employ run <command> [options] [<command_options> ...]
+  employ run <command> <config_file> [<setup_script> ...]
 
 Global Options:
-  -h --help                     Show this message
+  -h, --help                    Show this message
   --version                     Show the version number
-
-Run Options:
-  -i NUM, --instances NUM       Number of instances to start [default: 1]
-  -r REGION, --region REGION    Which region to start the instances up on [default: us-east-1]
-  -n NAME, --name NAME          Which name to assign to each new instance [default: employed]
 
 Help Commands:
   commands                      List all available commands
   command <command>             Print the docstring for the provided command
   regions                       List all available regions names
 """
+from ConfigParser import RawConfigParser
 import sys
 
 from docopt import docopt
@@ -49,20 +47,24 @@ def list_regions():
         print "  %s" % region
 
 
-def run(arguments):
-    all_commands = employ.manager.Manager.available_commands()
-    if arguments["<command>"] not in all_commands:
-        sys.exit("Unknown command '%s'" % command)
-    command_cls = all_commands[arguments["<command>"]]
-    command = command_cls(*arguments["<command_options>"])
+def run(config_file, setup_scripts):
+    config = RawConfigParser(allow_no_value=True)
+    config.read(config_file)
+    commands = []
 
-    manager = employ.manager.Manager(
-        num_instances=arguments["--instances"],
-        name=arguments["--name"],
-        region=arguments["--region"],
-    )
+    all_commands = employ.manager.Manager.available_commands()
+    for command in config.sections():
+        if command == "employ":
+            continue
+        if command not in all_commands:
+            sys.exit("Unknown command '%s'" % command)
+        commands.append(all_commands[command].from_config(config))
+    manager = employ.manager.Manager.from_config(config)
     with manager:
-        manager.run(command)
+        for setup_script in setup_scripts:
+            manager.setup(setup_script)
+        for command in commands:
+            manager.run(command)
 
 
 arguments = docopt(__doc__, help=True, version="employ %s" % employ.__version__)
@@ -74,4 +76,4 @@ if arguments["help"]:
     elif arguments["regions"]:
         list_regions()
 elif arguments["run"]:
-    run(arguments)
+    run(arguments["<config_file>"], arguments["<setup_script>"])

@@ -5,25 +5,34 @@ class ABCommand(Command):
     """
     Command used to run ApacheBench (ab)
 
-    Command Options:
-      <target> <requests> [<concurrency> <extra_args>]
+    Command Settings:
+      [ab]
+      target=<target>
+      requests=<requests>
+      concurrency=<concurrency>
+      keepalive=(True|False)
 
-    Examples:
-      employ run ab http://127.0.0.1/test.html 1000
-      employ run ab https://127.0.0.1:8000/test.html 1000 10
-      employ run ab https://127.0.0.1:8000/test.html 1000 10 "-k -C 'cookie=1234'"
+    Eample:
+      ; run_ab.ini
+      [ab]
+      target=http://127.0.0.1:8000/test.html
+      requests=1000
+      concurrency=100
+      keepalive=False
+
+      employ run ab run_ab.ini
     """
     name = "ab"
 
-    def __init__(self, target, requests, concurrency=1, extra_args=""):
+    def __init__(self, target, requests, concurrency=1, keepalive=True):
         self.target = target
         self.requests = requests
         self.concurrency = concurrency
-        self.extra_args = extra_args
-        super(ABCommand, self).__init__()
+        self.keepalive = keepalive
 
     def command(self):
-        return "ab %s -n %s -c %s %s" % (self.target, self.requests, self.concurrency, self.extra_args)
+        keepalive = " -k" if self.keepalive else ""
+        return "ab %s -n %s -c %s%s" % (self.target, self.requests, self.concurrency, keepalive)
 
     def aggregate(self, results):
         pass
