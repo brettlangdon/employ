@@ -10,9 +10,16 @@ setup(
     author="Brett Langdon",
     author_email="brett@blangdon.com",
     packages=find_packages(),
+    namespace_packages=[
+        "employ.commands",
+    ],
     install_requires=[
         "docopt>=0.6.0",
         "boto>=2.13.0",
+        "straight.plugin>=1.4.0",
+    ],
+    scripts=[
+        "bin/employ",
     ],
     setup_requires=[],
     description="Distributed one time command execution and aggregation tool",
