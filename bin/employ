@@ -5,8 +5,8 @@ Employ instance to do your bidding
 Usage:
   employ --help
   employ --version
-  employ help (commands | command <command> | regions)
-  employ run <command> <config_file> [<setup_script> ...]
+  employ help (commands | command <command> | managers | manager <manager>)
+  employ <manager> run <config_file> [<setup_script> ...]
 
 Global Options:
   -h, --help                    Show this message
@@ -15,7 +15,9 @@ Global Options:
 Help Commands:
   commands                      List all available commands
   command <command>             Print the docstring for the provided command
-  regions                       List all available regions names
+  managers                      List all available managers
+  manager <manager>             Print the docstring for the provided manager
+
 """
 from ConfigParser import RawConfigParser
 import sys
@@ -23,11 +25,9 @@ import sys
 from docopt import docopt
 
 import employ
-import employ.manager
-
 
 def command_doc(command):
-    all_commands = employ.manager.Manager.available_commands()
+    all_commands = employ.available_commands()
     if all_commands.get(command):
         print all_commands[command].__doc__
     else:
@@ -35,9 +35,23 @@ def command_doc(command):
 
 
 def list_commands(command=None):
-    all_commands = employ.manager.Manager.available_commands()
+    all_commands = employ.available_commands()
     print "List of Available Commands:"
     for cls in all_commands:
+        print "  %s" % cls
+
+def manager_doc(manager):
+    all_managers = employ.available_managers()
+    if all_managers.get(manager):
+        print all_managers[manager].__doc__
+    else:
+        sys.exit("Unknown manager: '%s'" % manager)
+
+
+def list_managers(manager=None):
+    all_managers = employ.available_managers()
+    print "List of Available Managers:"
+    for cls in all_managers:
         print "  %s" % cls
 
 
@@ -47,19 +61,24 @@ def list_regions():
         print "  %s" % region
 
 
-def run(config_file, setup_scripts):
+def run(manager_cls, config_file, setup_scripts):
     config = RawConfigParser(allow_no_value=True)
     config.read(config_file)
     commands = []
 
-    all_commands = employ.manager.Manager.available_commands()
+    all_commands = employ.available_commands()
     for command in config.sections():
-        if command == "employ":
+        if command == "employ" or command == manager_cls:
             continue
         if command not in all_commands:
             sys.exit("Unknown command '%s'" % command)
         commands.append(all_commands[command].from_config(config))
-    manager = employ.manager.Manager.from_config(config)
+
+    all_managers = employ.available_managers()
+    if manager_cls not in all_managers:
+        sys.exit("Unknown manager: '%s'" % manager_cls)
+
+    manager = all_managers[manager_cls].from_config(config)
     with manager:
         for setup_script in setup_scripts:
             manager.setup(setup_script)
@@ -73,7 +92,9 @@ if arguments["help"]:
         list_commands()
     elif arguments["command"] and arguments["<command>"]:
         command_doc(arguments["<command>"])
-    elif arguments["regions"]:
-        list_regions()
+    elif arguments["managers"]:
+        list_managers()
+    elif arguments["manager"] and arguments["<manager>"]:
+        manager_doc(arguments["<manager>"])
 elif arguments["run"]:
-    run(arguments["<config_file>"], arguments["<setup_script>"])
+    run(arguments["<manager>"], arguments["<config_file>"], arguments["<setup_script>"])

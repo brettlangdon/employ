@@ -20,7 +20,7 @@ class ABCommand(Command):
       concurrency=100
       keepalive=False
 
-      employ run ab run_ab.ini
+      employ <manager> run run_ab.ini
     """
     name = "ab"
 
