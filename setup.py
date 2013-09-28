@@ -12,17 +12,19 @@ setup(
     packages=find_packages(),
     namespace_packages=[
         "employ.commands",
+        "employ.managers",
     ],
     install_requires=[
         "docopt>=0.6.0",
         "boto>=2.13.0",
+        "paramiko>=1.11.0",
         "straight.plugin>=1.4.0",
     ],
     scripts=[
         "bin/employ",
     ],
     setup_requires=[],
-    description="Distributed one time command execution and aggregation tool",
+    description="A distributed command execution framework.",
     license="MIT",
     url='https://github.com/brettlangdon/employ',
     classifiers=[
