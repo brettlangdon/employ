@@ -1,7 +1,7 @@
 from pkgutil import extend_path
 __path__ = extend_path(__path__, __name__)
 
-from employ.execptions import ExecutionError
+from employ.exceptions import ExecutionError
 
 
 class Manager(object):
