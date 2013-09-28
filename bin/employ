@@ -6,11 +6,14 @@ Usage:
   employ --help
   employ --version
   employ help (commands | command <command> | managers | manager <manager>)
-  employ <manager> run <config_file> [<setup_script> ...]
+  employ [--verbose] <manager> run <config_file> [<setup_script> ...]
 
 Global Options:
   -h, --help                    Show this message
   --version                     Show the version number
+
+Run Options:
+  -v, --verbose                 Set log level of INFO
 
 Help Commands:
   commands                      List all available commands
@@ -20,11 +23,14 @@ Help Commands:
 
 """
 from ConfigParser import RawConfigParser
+import logging
 import sys
 
 from docopt import docopt
 
 import employ
+from employ.logger import logger
+
 
 def command_doc(command):
     all_commands = employ.available_commands()
@@ -39,6 +45,7 @@ def list_commands(command=None):
     print "List of Available Commands:"
     for cls in all_commands:
         print "  %s" % cls
+
 
 def manager_doc(manager):
     all_managers = employ.available_managers()
@@ -87,6 +94,14 @@ def run(manager_cls, config_file, setup_scripts):
 
 
 arguments = docopt(__doc__, help=True, version="employ %s" % employ.__version__)
+
+level = "INFO" if arguments["--verbose"] else "ERROR"
+logging.basicConfig(
+        format='%(asctime)s - %(name) - %(message)s',
+        level=level,
+        stream=sys.stdout,
+    )
+
 if arguments["help"]:
     if arguments["commands"]:
         list_commands()
