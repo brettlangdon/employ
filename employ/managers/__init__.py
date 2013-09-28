@@ -30,3 +30,20 @@ class Manager(object):
 
     def run(self, command):
         raise NotImplementedError()
+
+    def validate_results(self, results, command):
+        """
+        Helper method to validate the results of running commands.
+
+        :param results: the (status, stdout, stderr) results from running `command`
+        :type results: list
+        :param command: the raw str command that was run
+        :type command: str
+        :raises: :class:``employ.exections.ExecutionError``
+        """
+        for status, stdout, stderr in results:
+            if status != 0:
+                raise ExecutionError(
+                    "Non-Zero status code from executing command: %s" % command,
+                    command, status, stdout, stderr,
+                )
