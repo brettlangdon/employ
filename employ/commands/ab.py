@@ -5,16 +5,18 @@ from employ.commands import Command
 
 class ABCommand(Command):
     """
-    :class:``employ.commands.Command`` used to run ApacheBench (ab)
+    :class:`employ.commands.Command` used to run ApacheBench (ab)
 
-    Command Settings:
+    Command Settings::
+
       [ab]
       target=<target>
       requests=<requests>
       concurrency=<concurrency>
       keepalive=(True|False)
 
-    Eample:
+    Example::
+
       ; run_ab.ini
       [ab]
       target=http://127.0.0.1:8000/test.html
@@ -22,7 +24,10 @@ class ABCommand(Command):
       concurrency=100
       keepalive=False
 
+    Running::
+
       employ <manager> run run_ab.ini
+
     """
     name = "ab"
 
@@ -89,7 +94,7 @@ class ABCommand(Command):
         The aggregate the results of multiple executions of `ab`
 
         :param results: list of (status, stdout, stderr) from the
-            results of running :func:``command``
+            results of running :func:`command`
         :type results: list
         """
         total_completed = 0

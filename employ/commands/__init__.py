@@ -10,12 +10,12 @@ class Command(object):
 
     def aggregate(self, results):
         """
-        Method to join together the results of running :func:``command``
+        Method to join together the results of running :func:`command`
 
         Method which must be overridden by child class.
 
         :param results: list of (status, stdout, stderr) for each
-            result of running :func:``command``
+            result of running :func:`command`
         :type results: list
         """
         raise NotImplementedError()
@@ -33,12 +33,12 @@ class Command(object):
     @classmethod
     def from_config(cls, config):
         """
-        Helper classmethod to create an instance of :class:``employ.commands.Command``
+        Helper classmethod to create an instance of :class:`employ.commands.Command`
         from the provided config.
 
-        :param config: the config to get the :class:``employ.commands.Command`` instance
-        :type config: :class:``ConfigParser.RawConfigParser``
-        ::returns: :class:``employ.commands.Command``
+        :param config: the config to get the :class:`employ.commands.Command` instance
+        :type config: :class:`ConfigParser.RawConfigParser`
+        :returns: :class:`employ.commands.Command`
         """
         settings = {}
         if config.has_section(cls.name):

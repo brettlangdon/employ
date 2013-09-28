@@ -13,12 +13,12 @@ class Manager(object):
     @classmethod
     def from_config(cls, config):
         """
-        Helper classmethod used to create an instance of :class:``employ.managers.Manager``
+        Helper classmethod used to create an instance of :class:`employ.managers.Manager`
         from the provided `config`
 
         :param config: the config to get the settings from
-        :type config: :class:``ConfigParser.RawConfigParser``
-        :returns: :class:``employ.managers.Manager``
+        :type config: :class:`ConfigParser.RawConfigParser`
+        :returns: :class:`employ.managers.Manager`
         """
         settings = {}
         if config.has_section(cls.name):
@@ -38,7 +38,7 @@ class Manager(object):
 
     def __enter__(self):
         """
-        Used to call :func:``setup_instances`` when using in a context manager
+        Used to call :func:`setup_instances` when using in a context manager
 
         with manager:
             # instances are connected to
@@ -58,7 +58,7 @@ class Manager(object):
 
     def __exit__(self, type, value, traceback):
         """
-        Used to call :func:``cleanup_instances`` when using in a context manager
+        Used to call :func:`cleanup_instances` when using in a context manager
 
         with manager:
             # instances are available
@@ -86,11 +86,12 @@ class Manager(object):
         This method should execute `command.commad()` on all instances
         as well as sending the results of all instances to `command.aggregate`
 
-        The results will be in the following format:
+        The results will be in the following format::
+
             [(status, stdout, stderr), ...]
 
         :param command: the command to run on the instances
-        :type command: :class:``employ.commands.Command`
+        :type command: :class:`employ.commands.Command`
         """
         raise NotImplementedError()
 
@@ -102,7 +103,7 @@ class Manager(object):
         :type results: list
         :param command: the raw str command that was run
         :type command: str
-        :raises: :class:``employ.exections.ExecutionError``
+        :raises: :class:`employ.exections.ExecutionError`
         """
         for status, stdout, stderr in results:
             if status != 0:

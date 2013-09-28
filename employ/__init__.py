@@ -9,6 +9,11 @@ managers = load("employ.managers", subclasses=Manager)
 
 
 def available_commands():
+    """
+    Helper function to get all availabl commands.
+
+    :returns: dict - {Command.name: :class:`employ.commands.Command`}
+    """
     all_commands = {}
     for command_cls in commands:
         if command_cls.name == "command":
@@ -18,6 +23,11 @@ def available_commands():
 
 
 def available_managers():
+    """
+    Helper function to get all available managers.
+
+    :returns: dict - {Manager.name: :class:`employ.managers.Manager`}
+    """
     all_managers = {}
     for manager_cls in managers:
         if manager_cls.name == "manager":

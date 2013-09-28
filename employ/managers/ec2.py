@@ -15,7 +15,8 @@ class EC2Manager(Manager):
     """
     Employ Manager which creates instances in EC2
 
-    Config Parameters:
+    Config Parameters::
+
       [ec2]
       ami_image_id = ami-da0cf8b3
       num_instances = 1
@@ -36,6 +37,7 @@ class EC2Manager(Manager):
       ; when attempting to gain an ssh connection, fail after
       ; connection_attempts attempts
       connection_attempts = 10
+
     """
     name = "ec2"
 
@@ -48,7 +50,7 @@ class EC2Manager(Manager):
             wait_interval=5, connection_attempts=10
     ):
         """
-        Construct for :class:``employ.managers.EC2Manager``
+        Construct for :class:`employ.managers.EC2Manager`
 
         :param ami_image_id: the ec2 ami image to use
         :type ami_image_id: str
@@ -72,20 +74,28 @@ class EC2Manager(Manager):
         self.connection_attempts = connection_attempts
         self._connection = None
 
-    @classmethod
-    def available_regions(cls):
-        for region in boto.ec2.regions():
-            yield region.name
-
     def connection(self):
+        """
+        Returns a boto connection.
+
+        :returns: :class:`boto.ec2.connection.EC2Connection`
+        """
         if not self._connection:
             self._connection = boto.ec2.connect_to_region(self.region)
         return self._connection
 
     def instance_ids(self):
+        """
+        Get list of client instance ids
+
+        :returns: list
+        """
         return [instance.id for instance in self.instances]
 
     def setup_instances(self):
+        """
+        Starts `self.num_instances` new EC2 instances and establish SSH connections to each
+        """
         logger.info("starting %s instances", self.num_instances)
         connection = self.connection()
         reservation = connection.run_instances(
@@ -132,6 +142,9 @@ class EC2Manager(Manager):
                 )
 
     def cleanup_instances(self):
+        """
+        Close all open SSH connections and terminate all instances.
+        """
         for client in self.client_connections:
             client.close()
 
@@ -139,6 +152,14 @@ class EC2Manager(Manager):
         connection.terminate_instances(instance_ids=self.instance_ids())
 
     def setup(self, script):
+        """
+        Run setup `script` on all instances.
+
+        Upload `script` to each instance and execute.
+
+        :param script: the filename of the script to upload and run
+        :type script: str
+        """
         remote_file = "/tmp/%s" % basename(script)
         workers = []
         for client in self.client_connections:
@@ -154,12 +175,18 @@ class EC2Manager(Manager):
         self.validate_results(results, command)
 
     def run(self, command):
+        """
+        Run :class:`employ.commands.Command` `command` on all instances.
+        """
         execute = command.command()
         results = self._run_multi(execute)
         self.validate_results(results, execute)
         command.aggregate(results)
 
     def _run_command(self, client, command, results):
+        """
+        Helper method for executing a single command on a client
+        """
         transport = client.get_transport()
         channel = transport.open_session()
         logger.info("executing command %s", command)
@@ -175,6 +202,9 @@ class EC2Manager(Manager):
         results.put((status, stdout, stderr))
 
     def _run_multi(self, command):
+        """
+        Helper method for executing a command across all instances
+        """
         results = Queue()
         workers = []
         for client in self.client_connections:
@@ -192,6 +222,9 @@ class EC2Manager(Manager):
         return all_results
 
     def _put_file(self, client, script, remote_file):
+        """
+        Helper method to upload a file to an instance
+        """
         fp = open(script, "r")
         transport = client.get_transport()
         sftp_client = paramiko.SFTPClient.from_transport(transport)
