@@ -3,6 +3,7 @@ import time
 import boto.ec2
 from boto.manage.cmdshell import sshclient_from_instance
 
+from employ.exceptions import SSHConnectionError
 from employ.managers import Manager
 
 
